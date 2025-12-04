@@ -12,3 +12,97 @@
     </nav>
   </div>
 </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Living Treaty – Language & Translator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-main">
+      <div>
+        <h1>The Living Treaty</h1>
+        <p class="tagline">
+          L’nui’suti and English in conversation – a small bridge between two worlds.
+        </p>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html">Timeline</a>
+        <a href="language.html">Language / Translator</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="controls">
+      <h2>Language as Worldview</h2>
+      <p class="hint">
+        This page is not a full dictionary. It’s a teaching tool based on a small basket of words
+        and patterns you’ve shared – especially diminutives like <em>-ji'j</em>, time words, and
+        relationship-based meanings.
+      </p>
+    </section>
+
+    <section class="translator-layout">
+      <section class="translator-panel">
+        <h2>Mi’kmaw ↔ English bridge</h2>
+        <p class="hint">
+          Type a Mi’kmaw word (S/F.O or Listuguj style) like <code>amu</code>, 
+          <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
+          or an English gloss like <code>bee</code>, <code>winter</code>, <code>nervous</code>.
+        </p>
+
+        <div class="translator-input-row">
+          <input
+            id="bridge-input"
+            type="text"
+            placeholder="Enter a Mi’kmaw form or English meaning…"
+            autocomplete="off"
+          />
+          <button id="bridge-button">Translate</button>
+        </div>
+
+        <div id="bridge-results" class="translator-results">
+          <!-- bridge.js will fill this -->
+        </div>
+      </section>
+
+      <aside class="translator-notes">
+        <h2>How this bridge thinks</h2>
+        <p>
+          This translator does not try to “perfectly” convert between L’nui’suti and English.
+          Instead, it follows a Two-Eyed Seeing approach:
+        </p>
+        <ul>
+          <li>
+            <strong>Western eye:</strong> simple pattern rules (like recognizing
+            <code>-ji'j</code> as a diminutive / child-form) and clear data structures.
+          </li>
+          <li>
+            <strong>L’nuk eye:</strong> each entry has a relational explanation –
+            what the word means in terms of kinship, land, spirit, and responsibility.
+          </li>
+        </ul>
+        <p>
+          If you are an Elder, language keeper, or learner: this is meant to support
+          your work, not replace you. The basket of words and explanations should
+          grow through community guidance.
+        </p>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      This page uses a very small Mi’kmaw lexicon and pattern rules. Any serious use should
+      involve fluent speakers, Elders, and community custodians.
+    </p>
+  </footer>
+
+  <script src="bridge.js"></script>
+</body>
+</html>
+
