@@ -1,11 +1,10 @@
-<link rel="stylesheet" href="style.css" />
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>The Living Treaty – Two-Eyed Seeing Timeline</title>
+  <title>The Living Treaty – Language & Translator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Make sure this matches the actual CSS filename at root -->
+  <!-- This must match your real CSS filename at root -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -14,7 +13,7 @@
       <div>
         <h1>The Living Treaty</h1>
         <p class="tagline">
-          A Two-Eyed Seeing timeline of Mi’kma’ki – weaving L’nuk memory with Western records.
+          L’nui’suti and English in conversation – a small bridge between two worlds.
         </p>
       </div>
       <nav class="main-nav">
@@ -26,65 +25,72 @@
 
   <main class="layout">
     <section class="controls">
-      <h2>Two-Eyed Seeing Timeline of Mi’kma’ki</h2>
-      <div class="filters">
-        <label>
-          Era:
-          <select id="eraFilter">
-            <option value="all">All eras</option>
-          </select>
-        </label>
-
-        <label>
-          Tag:
-          <select id="tagFilter">
-            <option value="all">All tags</option>
-          </select>
-        </label>
-
-        <label>
-          Sort:
-          <select id="sortDirection">
-            <option value="asc">Oldest → Newest</option>
-            <option value="desc">Newest → Oldest</option>
-          </select>
-        </label>
-      </div>
+      <h2>Language as Worldview</h2>
       <p class="hint">
-        Click an event on the left to see Western context, L’nuk memory, and a Two-Eyed reflection.
+        This page is not a full dictionary. It’s a teaching tool built from a small
+        basket of words and patterns you shared – like <code>-ji'j</code> diminutives,
+        time words, and relational meanings.
       </p>
     </section>
 
-    <section class="timeline-and-detail">
-      <section class="timeline" id="timelineList">
-        <!-- Filled by timeline.js -->
+    <section class="translator-layout">
+      <section class="translator-panel">
+        <h2>Mi’kmaw ↔ English bridge</h2>
+        <p class="hint">
+          Type a Mi’kmaw word (S/F.O or Listuguj) like <code>amu</code>,
+          <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
+          <code>Netukulimk</code>, <code>Msit No'kmaq</code>, or an English gloss like
+          <code>bee</code>, <code>winter</code>, <code>nervous</code>.
+        </p>
+
+        <div class="translator-input-row">
+          <input
+            id="bridge-input"
+            type="text"
+            placeholder="Enter a Mi’kmaw form or English meaning…"
+            autocomplete="off"
+          />
+          <button id="bridge-button">Translate</button>
+        </div>
+
+        <div id="bridge-results" class="translator-results">
+          <!-- bridge.js will insert results here -->
+        </div>
       </section>
 
-      <aside class="detail" id="eventDetail">
-        <div class="detail-placeholder">
-          <h2>Choose an event</h2>
-          <p>
-            Select an event from the timeline to see:
-          </p>
-          <ul>
-            <li>Western historical / scientific context</li>
-            <li>L’nuk (Mi’kmaw) perspective</li>
-            <li>A short Two-Eyed Seeing reflection</li>
-            <li>Biographies of key figures</li>
-          </ul>
-        </div>
+      <aside class="translator-notes">
+        <h2>How this bridge thinks</h2>
+        <p>
+          This translator does not try to perfectly convert between L’nui’suti and
+          English. It follows a Two-Eyed Seeing approach:
+        </p>
+        <ul>
+          <li>
+            <strong>Western eye:</strong> simple pattern rules (like recognizing
+            <code>-ji'j</code> as a diminutive / child-form) and clear code structure.
+          </li>
+          <li>
+            <strong>L’nuk eye:</strong> each entry has a relational explanation – what
+            the word means in terms of kinship, land, spirit, and responsibility.
+          </li>
+        </ul>
+        <p>
+          If you are an Elder, language keeper, or learner: this is meant to support
+          your work, not replace you. The basket of words and explanations should grow
+          through community guidance.
+        </p>
       </aside>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>
-      Built as a living longhouse of memory. Western dates come from written records and archaeology;
-      L’nuk perspectives come from stories, teachings, and ongoing conversations.
+      This page uses a very small Mi’kmaw lexicon and pattern rules. Any serious use
+      should involve fluent speakers, Elders, and community custodians.
     </p>
   </footer>
 
-  <script src="timelineData.js"></script>
-  <script src="timeline.js"></script>
+  <!-- This is what actually connects the page to the translator logic -->
+  <script src="bridge.js"></script>
 </body>
 </html>
