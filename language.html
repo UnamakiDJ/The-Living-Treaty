@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <title>The Living Treaty – Language & Translator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="styles.css" />
+  <!-- This must match your real CSS filename at root -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="site-header">
@@ -28,8 +29,8 @@
       <h2>Language as Worldview</h2>
       <p class="hint">
         This page is not a full dictionary. It’s a teaching tool built from a small
-        basket of words and patterns you shared – like <code>-ji'j</code>
-        diminutives, time words, and relational meanings.
+        basket of words and patterns you shared – like <code>-ji'j</code> diminutives,
+        time words, and relational meanings.
       </p>
     </section>
 
@@ -37,12 +38,10 @@
       <section class="translator-panel">
         <h2>Mi’kmaw ↔ English bridge</h2>
         <p class="hint">
-          Type a Mi’kmaw word (S/F.O or Listuguj) like
-          <code>amu</code>, <code>amuji'j</code>, <code>tpuk</code>,
-          <code>awnasiey</code>, <code>Netukulimk</code>,
-          <code>Msit No'kmaq</code>,
-          or an English gloss like <code>bee</code>, <code>winter</code>,
-          <code>nervous</code>.
+          Type a Mi’kmaw word (S/F.O or Listuguj) like <code>amu</code>,
+          <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
+          <code>Netukulimk</code>, <code>Msit No'kmaq</code>, or an English gloss like
+          <code>bee</code>, <code>winter</code>, <code>nervous</code>.
         </p>
 
         <div class="translator-input-row">
@@ -56,7 +55,7 @@
         </div>
 
         <div id="bridge-results" class="translator-results">
-          <!-- bridge.js will fill this -->
+          <!-- bridge.js will insert results here -->
         </div>
       </section>
 
@@ -92,7 +91,7 @@
     </p>
   </footer>
 
+  <!-- This is what actually connects the page to the translator logic -->
   <script src="bridge.js"></script>
 </body>
 </html>
-
