@@ -1,17 +1,3 @@
-<header class="site-header">
-  <div class="header-main">
-    <div>
-      <h1>The Living Treaty</h1>
-      <p class="tagline">
-        A Two-Eyed Seeing timeline of Mi’kma’ki – weaving L’nuk memory with Western records.
-      </p>
-    </div>
-    <nav class="main-nav">
-      <a href="index.html">Timeline</a>
-      <a href="language.html">Language / Translator</a>
-    </nav>
-  </div>
-</header>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,9 +26,8 @@
     <section class="controls">
       <h2>Language as Worldview</h2>
       <p class="hint">
-        This page is not a full dictionary. It’s a teaching tool based on a small basket of words
-        and patterns you’ve shared – especially diminutives like <em>-ji'j</em>, time words, and
-        relationship-based meanings.
+        This page is not a full dictionary. It’s a teaching tool built from a small basket of words
+        and patterns you shared – like <code>-ji'j</code> diminutives, time words, and relational meanings.
       </p>
     </section>
 
@@ -50,8 +35,9 @@
       <section class="translator-panel">
         <h2>Mi’kmaw ↔ English bridge</h2>
         <p class="hint">
-          Type a Mi’kmaw word (S/F.O or Listuguj style) like <code>amu</code>, 
+          Type a Mi’kmaw word (S/F.O or Listuguj) like <code>amu</code>, 
           <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
+          <code>Netukulimk</code>, <code>Msit No'kmaq</code>, 
           or an English gloss like <code>bee</code>, <code>winter</code>, <code>nervous</code>.
         </p>
 
@@ -73,13 +59,13 @@
       <aside class="translator-notes">
         <h2>How this bridge thinks</h2>
         <p>
-          This translator does not try to “perfectly” convert between L’nui’suti and English.
-          Instead, it follows a Two-Eyed Seeing approach:
+          This translator does not try to perfectly convert between L’nui’suti and English.
+          It follows a Two-Eyed Seeing approach:
         </p>
         <ul>
           <li>
             <strong>Western eye:</strong> simple pattern rules (like recognizing
-            <code>-ji'j</code> as a diminutive / child-form) and clear data structures.
+            <code>-ji'j</code> as a diminutive / child-form) and clear code structure.
           </li>
           <li>
             <strong>L’nuk eye:</strong> each entry has a relational explanation –
@@ -87,9 +73,8 @@
           </li>
         </ul>
         <p>
-          If you are an Elder, language keeper, or learner: this is meant to support
-          your work, not replace you. The basket of words and explanations should
-          grow through community guidance.
+          If you are an Elder, language keeper, or learner: this is meant to support your work,
+          not replace you. The basket of words and explanations should grow through community guidance.
         </p>
       </aside>
     </section>
@@ -105,4 +90,3 @@
   <script src="bridge.js"></script>
 </body>
 </html>
-
