@@ -1,2 +1,0 @@
-C:\path\to\my-lnui-translator> uvicorn api:app --reload
-
