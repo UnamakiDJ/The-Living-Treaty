@@ -737,3 +737,17 @@ def get_translator() -> LnuTranslator:
     if _default_translator is None:
         _default_translator = LnuTranslator()
     return _default_translator
+from lexicon_data import LNU_LEXICON
+
+class LnuTranslator:
+    def __init__(self):
+        self.lexicon = LNU_LEXICON
+
+    def find_entry(self, word: str):
+        lower = word.lower()
+        for entry in self.lexicon:
+            if entry["surface"].lower() == lower or entry["lemma"].lower() == lower:
+                return entry
+        return None
+
+    # and your explain_word_for_api() can call self.find_entry(...)
