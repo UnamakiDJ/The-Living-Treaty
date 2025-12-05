@@ -279,3 +279,15 @@ export const LNU_LEXICON = [
     needsReview: true
   }
 ];
+import { LNU_LEXICON } from "./lexicon.js";
+
+export function lookupLocalWord(word) {
+  const lower = word.toLowerCase();
+  return (
+    LNU_LEXICON.find(
+      (e) =>
+        e.surface.toLowerCase() === lower ||
+        e.lemma.toLowerCase() === lower
+    ) || null
+  );
+}
