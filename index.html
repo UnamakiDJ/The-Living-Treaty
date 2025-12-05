@@ -1,96 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>The Living Treaty – Language & Translator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- This must match your real CSS filename at root -->
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="header-main">
-      <div>
-        <h1>The Living Treaty</h1>
-        <p class="tagline">
-          L’nui’suti and English in conversation – a small bridge between two worlds.
-        </p>
-      </div>
-      <nav class="main-nav">
-        <a href="index.html">Timeline</a>
-        <a href="language.html">Language / Translator</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="layout">
-    <section class="controls">
-      <h2>Language as Worldview</h2>
-      <p class="hint">
-        This page is not a full dictionary. It’s a teaching tool built from a small
-        basket of words and patterns you shared – like <code>-ji'j</code> diminutives,
-        time words, and relational meanings.
-      </p>
-    </section>
-
-    <section class="translator-layout">
-      <section class="translator-panel">
-        <h2>Mi’kmaw ↔ English bridge</h2>
-        <p class="hint">
-          Type a Mi’kmaw word (S/F.O or Listuguj) like <code>amu</code>,
-          <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
-          <code>Netukulimk</code>, <code>Msit No'kmaq</code>, or an English gloss like
-          <code>bee</code>, <code>winter</code>, <code>nervous</code>.
-        </p>
-
-        <div class="translator-input-row">
-          <input
-            id="bridge-input"
-            type="text"
-            placeholder="Enter a Mi’kmaw form or English meaning…"
-            autocomplete="off"
-          />
-          <button id="bridge-button">Translate</button>
-        </div>
-
-        <div id="bridge-results" class="translator-results">
-          <!-- bridge.js will insert results here -->
-        </div>
-      </section>
-
-      <aside class="translator-notes">
-        <h2>How this bridge thinks</h2>
-        <p>
-          This translator does not try to perfectly convert between L’nui’suti and
-          English. It follows a Two-Eyed Seeing approach:
-        </p>
-        <ul>
-          <li>
-            <strong>Western eye:</strong> simple pattern rules (like recognizing
-            <code>-ji'j</code> as a diminutive / child-form) and clear code structure.
-          </li>
-          <li>
-            <strong>L’nuk eye:</strong> each entry has a relational explanation – what
-            the word means in terms of kinship, land, spirit, and responsibility.
-          </li>
-        </ul>
-        <p>
-          If you are an Elder, language keeper, or learner: this is meant to support
-          your work, not replace you. The basket of words and explanations should grow
-          through community guidance.
-        </p>
-      </aside>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>
-      This page uses a very small Mi’kmaw lexicon and pattern rules. Any serious use
-      should involve fluent speakers, Elders, and community custodians.
-    </p>
-  </footer>
-
-  <!-- This is what actually connects the page to the translator logic -->
-  <script src="bridge.js"></script>
-</body>
-</html>
+diff --git a/index.html b/index.html
+index e9721359608944216058d2a3c15651f8b9893674..a6b23a476e1ae1b0d99ed92e4c08f84243d88c16 100644
+--- a/index.html
++++ b/index.html
+@@ -1,96 +1,81 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8" />
+-  <title>The Living Treaty – Language & Translator</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+-  <!-- This must match your real CSS filename at root -->
++  <title>The Netukulimk Utan Project</title>
+   <link rel="stylesheet" href="style.css" />
+ </head>
+ <body>
+   <header class="site-header">
+     <div class="header-main">
+       <div>
+-        <h1>The Living Treaty</h1>
+-        <p class="tagline">
+-          L’nui’suti and English in conversation – a small bridge between two worlds.
+-        </p>
++        <h1>The Netukulimk Utan Project</h1>
++        <p class="tagline">L’nui’simk (Mi’kmaw) Meaning Portal – Msit No'kmaq</p>
+       </div>
+       <nav class="main-nav">
+-        <a href="index.html">Timeline</a>
+-        <a href="language.html">Language / Translator</a>
++        <a href="index.html" aria-current="page">Portal</a>
++        <a href="language.html">Timeline</a>
+       </nav>
+     </div>
+   </header>
+ 
+-  <main class="layout">
+-    <section class="controls">
+-      <h2>Language as Worldview</h2>
+-      <p class="hint">
+-        This page is not a full dictionary. It’s a teaching tool built from a small
+-        basket of words and patterns you shared – like <code>-ji'j</code> diminutives,
+-        time words, and relational meanings.
++  <main class="portal-shell">
++    <section class="portal-intro">
++      <h2>Language as relation</h2>
++      <p>
++        This is a learning portal, not a dictionary. It respects polysynthesis, animacy,
++        and responsibilities to land and relations. Anything new must be checked with
++        fluent speakers and Elders.
+       </p>
+     </section>
+ 
+-    <section class="translator-layout">
+-      <section class="translator-panel">
+-        <h2>Mi’kmaw ↔ English bridge</h2>
+-        <p class="hint">
+-          Type a Mi’kmaw word (S/F.O or Listuguj) like <code>amu</code>,
+-          <code>amuji'j</code>, <code>tpuk</code>, <code>awnasiey</code>,
+-          <code>Netukulimk</code>, <code>Msit No'kmaq</code>, or an English gloss like
+-          <code>bee</code>, <code>winter</code>, <code>nervous</code>.
+-        </p>
+-
+-        <div class="translator-input-row">
+-          <input
+-            id="bridge-input"
+-            type="text"
+-            placeholder="Enter a Mi’kmaw form or English meaning…"
+-            autocomplete="off"
+-          />
+-          <button id="bridge-button">Translate</button>
++    <section class="portal-panel">
++      <div class="input-stack">
++        <label class="input-label" for="mode-select">Choose your path</label>
++        <div class="mode-row">
++          <select id="mode-select">
++            <option value="mikmaq">Mi’kmaw word</option>
++            <option value="concept">English concept</option>
++          </select>
++          <button id="explain-button">Explain</button>
+         </div>
+ 
+-        <div id="bridge-results" class="translator-results">
+-          <!-- bridge.js will insert results here -->
+-        </div>
+-      </section>
++        <label class="input-label" for="main-input">Word or concept</label>
++        <input
++          id="main-input"
++          type="text"
++          class="text-input"
++          placeholder="Try Kesalul, Kataq, Msit No'kmaq, or refrigerator…"
++          autocomplete="off"
++        />
+ 
+-      <aside class="translator-notes">
+-        <h2>How this bridge thinks</h2>
+-        <p>
+-          This translator does not try to perfectly convert between L’nui’suti and
+-          English. It follows a Two-Eyed Seeing approach:
+-        </p>
+-        <ul>
+-          <li>
+-            <strong>Western eye:</strong> simple pattern rules (like recognizing
+-            <code>-ji'j</code> as a diminutive / child-form) and clear code structure.
+-          </li>
+-          <li>
+-            <strong>L’nuk eye:</strong> each entry has a relational explanation – what
+-            the word means in terms of kinship, land, spirit, and responsibility.
+-          </li>
+-        </ul>
++        <label class="input-label" for="purpose-input">Purpose / context (optional)</label>
++        <textarea
++          id="purpose-input"
++          class="text-area"
++          rows="2"
++          placeholder="What do you need the word for? (e.g., keeps food cold, helps students…)"
++        ></textarea>
++      </div>
++
++      <div class="note-card">
++        <h3>Community caution</h3>
+         <p>
+-          If you are an Elder, language keeper, or learner: this is meant to support
+-          your work, not replace you. The basket of words and explanations should grow
+-          through community guidance.
++          This portal is a learning tool, not a fluent speaker. Always verify new terms
++          with L’nui speaking Elders and language keepers. Prototypes are suggestions to
++          discuss, not final translations.
+         </p>
+-      </aside>
++      </div>
+     </section>
++
++    <section id="results" class="results-grid" aria-live="polite"></section>
+   </main>
+ 
+   <footer class="site-footer">
+-    <p>
+-      This page uses a very small Mi’kmaw lexicon and pattern rules. Any serious use
+-      should involve fluent speakers, Elders, and community custodians.
+-    </p>
++    <p>Built for Msit No'kmaq – taking only what we need, caring for future generations.</p>
+   </footer>
+ 
+-  <!-- This is what actually connects the page to the translator logic -->
+-  <script src="bridge.js"></script>
++  <script type="module" src="./bridge.js"></script>
+ </body>
+ </html>
