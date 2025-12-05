@@ -1,188 +1,492 @@
-# translator.py
+"""
+translator.py
 
-from dataclasses import asdict
-from typing import Dict, List, Optional, Literal
+Mi'kmaw–English helper for The Living Treaty / NetukilmkUtanProject.
 
-from lnu_home_context import build_home_context, HomeContext, MiKmawWord, MiKmawWordDialect
+This is NOT a simple "word = word" dictionary.
+It is a small engine for:
 
-InputType = Literal["auto", "mikmaw", "english"]
-OrthPref = Literal["SFO", "LO", "BOTH"]
+    • describing Mi'kmaw words as bundles of meaning (polysynthesis)
+    • annotating animacy, grammar role, and worldview notes
+    • generating candidate terms for new concepts (e.g., modern tech)
+    • serving explanations to a JS/HTTP layer (bridge.js, api.py, etc.)
+
+Design goals
+------------
+1. Keep Mi'kmaw logic at the centre, not English.
+2. Make it easy to extend: elders, speakers, and learners can add/adjust entries.
+3. Separate:
+      - lexicon data
+      - morphological rules
+      - worldview/TEK notes
+      - high-level "translator" interface
+4. Fail gracefully: if we don't know a word, we still give something useful
+   (e.g. pattern suggestion, placeholders, warnings).
+
+IMPORTANT
+---------
+This file intentionally encodes only *tiny* example lexicon data.
+Populate the LEXICON_* dicts with entries from:
+
+    • Wilfred Prosper lexicon
+    • L'nui'suti app (Smith-Francis Orthography)
+    • Kataq / Oyster / other UINR stories
+    • Elders' teachings
+
+so the structure stays stable while the knowledge grows.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, asdict
+from typing import List, Dict, Optional, Any
 
 
-class Translator:
-    """
-    Two-Eyed Seeing language bridge:
-    - Uses your HomeContext lexical data
-    - Lets you look up words by Mi'kmaw (S/F.O or Listuguj) or English
-    - Returns spelling, meaning, context, Two-Eyed Seeing notes, sources
-    """
+# ---------------------------------------------------------------------------
+# Data models
+# ---------------------------------------------------------------------------
 
-    def __init__(self, context: Optional[HomeContext] = None):
-        self.ctx: HomeContext = context or build_home_context()
-        self._build_indexes()
+@dataclass
+class Morpheme:
+    surface: str            # written form, e.g. "kesal"
+    gloss: str              # short English gloss, e.g. "love"
+    role: str               # "root", "preverb", "suffix", "final", etc.
+    notes: Optional[str] = None
 
-    def _build_indexes(self) -> None:
-        """Build internal search indexes for fast lookup."""
-        self.sfo_index: Dict[str, str] = {}       # S/F.O -> word key
-        self.lo_index: Dict[str, str] = {}        # Listuguj -> word key
-        self.english_index: Dict[str, List[str]] = {}  # english.lower() -> [keys]
 
-        for key, entry in self.ctx.mi_kmaw_words.items():
-            # english index
-            e = entry.english.lower()
-            self.english_index.setdefault(e, []).append(key)
+@dataclass
+class WordEntry:
+    """One lexical entry for a Mi'kmaw word."""
+    headword: str                 # citation form, e.g. "kesalul"
+    english: str                  # core translation, e.g. "I love you"
+    part_of_speech: str           # "VTA", "VAI", "NA", "NI", etc.
+    animacy: Optional[str]        # "animate", "inanimate", or None
+    morphemes: List[Morpheme]     # ordered breakdown
+    register: Optional[str] = None    # "everyday", "ceremonial", "child", etc.
+    worldview_tags: List[str] = None  # ["kinship", "netukulimk", "msit_nokmaq"]
+    examples: List[str] = None        # example Mi'kmaw sentences
 
-            # dialect index (we used "general" dialect in your context model)
-            dialect: MiKmawWordDialect = entry.dialects.get("general")  # type: ignore
-            if not dialect:
-                continue
 
-            if dialect.sf_orthography:
-                sfo = dialect.sf_orthography.strip()
-                self.sfo_index[sfo] = key
+@dataclass
+class AnalysisResult:
+    word: str
+    entry: Optional[WordEntry]
+    # When we don't have a full entry, these fields provide best-guess info.
+    guessed_morphemes: List[Morpheme]
+    animacy_guess: Optional[str]
+    worldview_notes: List[str]
 
-            if dialect.listuguj_orthography:
-                lo = dialect.listuguj_orthography.strip()
-                self.lo_index[lo] = key
-
-    # --------- public API ---------
-
-    def translate_word(
-        self,
-        query: str,
-        input_type: InputType = "auto",
-        orthography: OrthPref = "SFO"
-    ) -> Optional[Dict]:
-        """
-        Look up a word and return a Two-Eyed Seeing bundle.
-
-        query:       user input (Mi'kmaw or English)
-        input_type:  "auto" | "mikmaw" | "english"
-        orthography: "SFO" | "LO" | "BOTH" (output preference)
-
-        Returns: dict with:
-          - english
-          - sfo_spelling
-          - lo_spelling
-          - context
-          - two_eyed_seeing
-          - sources (resolved to full citation dicts)
-        """
-        query = query.strip()
-        if not query:
-            return None
-
-        key = None
-
-        # 1. Decide how to interpret query
-        if input_type == "english":
-            key = self._lookup_by_english(query)
-        elif input_type == "mikmaw":
-            key = self._lookup_by_mikmaw(query)
-        else:
-            # auto: try Mi'kmaw first, then English
-            key = self._lookup_by_mikmaw(query)
-            if key is None:
-                key = self._lookup_by_english(query)
-
-        if key is None:
-            return None
-
-        return self._build_response_bundle(key, orthography)
-
-    # --------- internal helpers ---------
-
-    def _lookup_by_mikmaw(self, word: str) -> Optional[str]:
-        """Try S/F.O and Listuguj indexes."""
-        # exact match first
-        if word in self.sfo_index:
-            return self.sfo_index[word]
-        if word in self.lo_index:
-            return self.lo_index[word]
-
-        # try case-insensitive match
-        w_lower = word.lower()
-        for k, v in self.sfo_index.items():
-            if k.lower() == w_lower:
-                return v
-        for k, v in self.lo_index.items():
-            if k.lower() == w_lower:
-                return v
-
-        return None
-
-    def _lookup_by_english(self, english: str) -> Optional[str]:
-        """Look up by exact English gloss (case-insensitive)."""
-        e = english.lower().strip()
-        keys = self.english_index.get(e)
-        if not keys:
-            return None
-        # if multiple, just return the first for now
-        return keys[0]
-
-    def _build_response_bundle(self, key: str, orthography: OrthPref) -> Dict:
-        """Build a dictionary with all the information for the given word key."""
-        entry: MiKmawWord = self.ctx.mi_kmaw_words[key]
-        dialect: MiKmawWordDialect = entry.dialects["general"]  # type: ignore
-
-        # spelling preference logic
-        if orthography == "SFO":
-            sfo_spelling = dialect.sf_orthography
-            lo_spelling = dialect.listuguj_orthography
-        elif orthography == "LO":
-            sfo_spelling = dialect.sf_orthography
-            lo_spelling = dialect.listuguj_orthography
-        else:  # BOTH
-            sfo_spelling = dialect.sf_orthography
-            lo_spelling = dialect.listuguj_orthography
-
-        # resolve sources
-        src_details: List[Dict] = []
-        if dialect.sources:
-            for sid in dialect.sources:
-                src = self.ctx.sources.get(sid)
-                if src:
-                    src_details.append(asdict(src))
-
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "key": key,
-            "english": entry.english,
-            "sfo_spelling": sfo_spelling,
-            "lo_spelling": lo_spelling,
-            "context": dialect.context,
-            "two_eyed_seeing": dialect.two_eyed_seeing,
-            "sources": src_details,
+            "word": self.word,
+            "has_entry": self.entry is not None,
+            "entry": asdict(self.entry) if self.entry else None,
+            "guessed_morphemes": [asdict(m) for m in self.guessed_morphemes],
+            "animacy_guess": self.animacy_guess,
+            "worldview_notes": self.worldview_notes,
         }
 
 
-# --------- simple CLI test ---------
+@dataclass
+class GenerationRequest:
+    """
+    High-level description of a concept we want a Mi'kmaw word for.
 
-if __name__ == "__main__":
-    t = Translator()
+    Example:
+        concept = "refrigerator"
+        purpose = "keeps food cold and safe to eat"
+        domain_tags = ["home", "food", "modern_object"]
+    """
+    concept: str
+    purpose: str
+    domain_tags: List[str]
 
-    # test a few lookups
-    tests = [
-        ("tupsi", "mikmaw"),
-        ("alder tree", "english"),
-        ("Te'sikiskik", "mikmaw"),
-        ("Poqnitpa'q Aqtatpa'q", "mikmaw"),
-        ("winter", "english"),
-    ]
 
-    for q, kind in tests:
-        print("=" * 60)
-        print(f"Query: {q!r} ({kind})")
-        result = t.translate_word(q, input_type=kind)  # type: ignore
-        if result is None:
-            print("  -> Not found")
-        else:
-            print(f"English: {result['english']}")
-            print(f"S/F.O:   {result['sfo_spelling']}")
-            print(f"Listuguj:{result['lo_spelling']}")
-            print("Context:")
-            print(" ", result["context"])
-            print("Two-Eyed Seeing:")
-            print(" ", result["two_eyed_seeing"])
-            print("Sources:")
-            for s in result["sources"]:
-                print(f"  - {s['details']}")
+@dataclass
+class GenerationCandidate:
+    word: str
+    breakdown: List[Morpheme]
+    explanation: str
+    caution: str  # reminder to check with fluent speakers / elders
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "word": self.word,
+            "breakdown": [asdict(m) for m in self.breakdown],
+            "explanation": self.explanation,
+            "caution": self.caution,
+        }
+
+
+# ---------------------------------------------------------------------------
+# Minimal example lexicon
+# ---------------------------------------------------------------------------
+
+# You should expand these dictionaries with real data.
+# Keys = headword in Smith-Francis orthography.
+
+LEXICON_CORE: Dict[str, WordEntry] = {}
+
+
+def _init_lexicon() -> None:
+    """Populate the core lexicon with starter entries.
+
+    NOTE: This is only a tiny seed. In production, load this from JSON/YAML.
+    """
+    def W(headword, english, part_of_speech, animacy, morphemes, **kw) -> WordEntry:
+        return WordEntry(
+            headword=headword,
+            english=english,
+            part_of_speech=part_of_speech,
+            animacy=animacy,
+            morphemes=morphemes,
+            worldview_tags=kw.get("worldview_tags", []),
+            register=kw.get("register"),
+            examples=kw.get("examples", []),
+        )
+
+    # "I love you" – core relationship verb from Rebecca Thomas' explanation.
+    LEXICON_CORE["kesalul"] = W(
+        headword="kesalul",
+        english="I love you",
+        part_of_speech="VTA-1sg>2",
+        animacy="animate",
+        morphemes=[
+            Morpheme("ke-", "1st person acting (I)", "prefix"),
+            Morpheme("sal", "love / precious", "root"),
+            Morpheme("-ul", "1→2 object (you)", "final"),
+        ],
+        worldview_tags=["kinship", "emotion"],
+        examples=["Kesalul nikmaq. – I love you, my relations."],
+    )
+
+    # "I hurt you" – similar shape, opposite valence.
+    LEXICON_CORE["kesa'lul"] = W(
+        headword="kesa'lul",
+        english="I hurt you",
+        part_of_speech="VTA-1sg>2",
+        animacy="animate",
+        morphemes=[
+            Morpheme("ke-", "1st person acting (I)", "prefix"),
+            Morpheme("sa'", "hurt / pain", "root"),
+            Morpheme("-ul", "1→2 object (you)", "final"),
+        ],
+        worldview_tags=["emotion", "harm"],
+    )
+
+    # "I put you into the fire" – sacrifice / offering.
+    LEXICON_CORE["ke'sa'lul"] = W(
+        headword="ke'sa'lul",
+        english="I place you into the fire (as offering/prayer)",
+        part_of_speech="VTA-1sg>2",
+        animacy="animate",
+        morphemes=[
+            Morpheme("ke'-", "into / into the fire", "preverb"),
+            Morpheme("sa'", "put / place", "root"),
+            Morpheme("-lul", "1→2 object", "final"),
+        ],
+        worldview_tags=["ceremony", "offering", "fire"],
+    )
+
+    # tekek – cold, used in your fridge example.
+    LEXICON_CORE["tekek"] = W(
+        headword="tekek",
+        english="it is cold",
+        part_of_speech="VII",  # intransitive inanimate
+        animacy="inanimate",
+        morphemes=[Morpheme("tekek", "cold (inanimate state)", "root")],
+        worldview_tags=["weather", "state"],
+    )
+
+    # Nme'jik – fish (animate plural).
+    LEXICON_CORE["nme'jik"] = W(
+        headword="nme'jik",
+        english="fishes",
+        part_of_speech="NA-pl",
+        animacy="animate",
+        morphemes=[
+            Morpheme("nme'", "fish", "root"),
+            Morpheme("-jik", "animate plural", "suffix"),
+        ],
+        worldview_tags=["animals", "water"],
+    )
+
+    # msit no'kmaq – "all my relations".
+    LEXICON_CORE["msit no'kmaq"] = W(
+        headword="msit no'kmaq",
+        english="all my relations",
+        part_of_speech="expression",
+        animacy=None,
+        morphemes=[
+            Morpheme("msit", "all", "quantifier"),
+            Morpheme("no'kmaq", "my relations / all my kin", "noun"),
+        ],
+        worldview_tags=["msit_nokmaq", "philosophy", "relation"],
+        register="ceremonial",
+    )
+
+
+_init_lexicon()
+
+
+# ---------------------------------------------------------------------------
+# Morphological & worldview rules (high level, not full linguistics)
+# ---------------------------------------------------------------------------
+
+ANIMACY_HINTS = {
+    # if a word contains one of these roots, assume animate
+    "nme'": "animate",
+    "kataq": "animate",
+    "waisik": "animate",   # animals
+    "weskaq": "inanimate", # wind/air often treated differently
+}
+
+WORLDVIEW_HINTS = {
+    "msit": "Msit No'kmaq – all is related.",
+    "no'kmaq": "Relational kinship, not just biological family.",
+    "nipugt": "In the woods / territory context.",
+    "samqwan": "Water context – river, lake, ocean.",
+    "e's": "Process / becoming; states often verbs, not nouns.",
+}
+
+
+def guess_animacy(word: str) -> Optional[str]:
+    word_lower = word.lower()
+    for frag, anim in ANIMACY_HINTS.items():
+        if frag in word_lower:
+            return anim
+    # fallback: very rough heuristic
+    if word_lower.endswith("jik"):
+        return "animate"
+    if word_lower.endswith("l") or word_lower.endswith("k"):
+        return None
+    return None
+
+
+def collect_worldview_notes(word: str) -> List[str]:
+    notes: List[str] = []
+    lowered = word.lower()
+    for frag, note in WORLDVIEW_HINTS.items():
+        if frag in lowered:
+            notes.append(note)
+    return notes
+
+
+# ---------------------------------------------------------------------------
+# Core translator class
+# ---------------------------------------------------------------------------
+
+class LnuTranslator:
+    """
+    Main interface used by API/bridge.js.
+
+    Typical usage from Python:
+
+        tx = LnuTranslator()
+        analysis = tx.analyze_word("kesalul")
+        print(analysis.to_dict())
+
+        candidates = tx.generate_modern_term(
+            GenerationRequest(
+                concept="refrigerator",
+                purpose="keeps food and drink cold and safe",
+                domain_tags=["home", "food", "modern_object"],
+            )
+        )
+    """
+
+    def __init__(self, lexicon: Optional[Dict[str, WordEntry]] = None):
+        self.lexicon = lexicon or LEXICON_CORE
+
+    # ------------------ lookup & analysis ------------------
+
+    def lookup(self, word: str) -> Optional[WordEntry]:
+        # Normalize a little: strip spaces, lowercase where safe.
+        key = word.strip()
+        # try exact first
+        if key in self.lexicon:
+            return self.lexicon[key]
+        # loose search (case-insensitive)
+        for hw, entry in self.lexicon.items():
+            if hw.lower() == key.lower():
+                return entry
+        return None
+
+    def analyze_word(self, word: str) -> AnalysisResult:
+        entry = self.lookup(word)
+        if entry:
+            # We already have a curated breakdown; also attach worldview notes.
+            notes = collect_worldview_notes(entry.headword)
+            # merge stored worldview tags into notes in a friendly way
+            if entry.worldview_tags:
+                notes.append(
+                    "Worldview tags: " + ", ".join(entry.worldview_tags)
+                )
+            return AnalysisResult(
+                word=word,
+                entry=entry,
+                guessed_morphemes=[],
+                animacy_guess=entry.animacy,
+                worldview_notes=notes,
+            )
+
+        # No entry: try a light morphological guess based on patterns
+        guessed: List[Morpheme] = []
+        anim_guess = guess_animacy(word)
+        notes = collect_worldview_notes(word)
+
+        # very small set of pattern heuristics – extend as needed
+        if word.endswith("jik"):
+            stem = word[:-3]
+            guessed.append(Morpheme(stem, "possible animate root", "root"))
+            guessed.append(Morpheme("-jik", "animate plural", "suffix"))
+            notes.append(
+                "-jik often marks animate plural (people, animals, living beings)."
+            )
+        elif "'" in word:
+            # split on apostrophes as rough morpheme boundaries
+            parts = word.split("'")
+            for p in parts:
+                if not p:
+                    continue
+                guessed.append(Morpheme(p, "possible morpheme", "unknown"))
+            notes.append(
+                "Apostrophes often mark long vowels or morpheme boundaries."
+            )
+
+        if not guessed:
+            guessed.append(
+                Morpheme(word, "unknown – add to lexicon with elders", "unknown")
+            )
+            notes.append(
+                "No lexicon entry yet. This is a good candidate to confirm with fluent speakers."
+            )
+
+        if anim_guess:
+            notes.append(f"Animacy guess: {anim_guess}.")
+
+        return AnalysisResult(
+            word=word,
+            entry=None,
+            guessed_morphemes=guessed,
+            animacy_guess=anim_guess,
+            worldview_notes=notes,
+        )
+
+    # ------------------ sentence helpers ------------------
+
+    def analyze_sentence(self, sentence: str) -> Dict[str, Any]:
+        """
+        Break a Mi'kmaw sentence into words and analyze each.
+        This does NOT attempt full syntax – just word-level support.
+        """
+        # simple tokenization – you may want something smarter later
+        tokens = [t for t in sentence.replace(",", " ").split() if t]
+        analyses = [self.analyze_word(tok).to_dict() for tok in tokens]
+        return {
+            "sentence": sentence,
+            "tokens": tokens,
+            "analyses": analyses,
+        }
+
+    # ------------------ modern term generation ------------------
+
+    def generate_modern_term(self, req: GenerationRequest) -> List[GenerationCandidate]:
+        """
+        Suggest Mi'kmaw-style words for a modern concept.
+
+        This uses PATTERNS, not "translations". All results MUST be
+        checked with fluent speakers / elders before real-world use.
+        """
+
+        candidates: List[GenerationCandidate] = []
+
+        # 1. Example pattern for "thing that keeps X cold" (refrigerator).
+        if "refrigerator" in req.concept.lower() or (
+            "cold" in req.purpose.lower() and "food" in req.purpose.lower()
+        ):
+            # Use tekek (it is cold) + container / house notion.
+            # We'll propose something like:
+            #   "Mesentaqtekekim" – "that which makes-things-be-cold-inside"
+            morphemes = [
+                Morpheme("mesen-", "to keep / maintain", "preverb"),
+                Morpheme("taq-", "inside / container / dwelling", "root-ish"),
+                Morpheme("tekek", "cold (inanimate state)", "root"),
+                Morpheme("-im", "instrument / thing that does this", "suffix"),
+            ]
+            word = "Mesentaqtekekim"
+            explanation = (
+                "Built from mesen- (to keep/maintain) + taq (inside) + tekek (cold) "
+                "+ -im (instrument). Rough sense: 'the thing that keeps the inside cold'."
+            )
+            caution = (
+                "Prototype only. Confirm phonology, stress and cultural fit with fluent "
+                "Mi'kmaw speakers and elders before adopting. Adjust spelling to local dialect."
+            )
+            candidates.append(GenerationCandidate(word, morphemes, explanation, caution))
+
+        # 2. Generic fallback pattern: describe purpose in verbs.
+        # This gives at least one candidate even if we have no handcrafted pattern.
+        base_root = "apoqnmatultim"  # "it helps / it supports" – placeholder root
+        morphemes = [
+            Morpheme(base_root, "to help / support (placeholder root)", "root"),
+            Morpheme("-ik", "thing which does this", "suffix"),
+        ]
+        generic_word = base_root.capitalize() + "ik"
+        explanation = (
+            "Generic helper pattern: root meaning 'to help/support' + -ik (instrument). "
+            "Use this only as a brainstorming starting point."
+        )
+        caution = (
+            "Generic pattern. Replace the root with a better verb that reflects the purpose "
+            "once you consult speakers (e.g., a more specific verb for how the object acts)."
+        )
+        candidates.append(GenerationCandidate(generic_word, morphemes, explanation, caution))
+
+        return candidates
+
+    # ------------------ API-friendly wrappers ------------------
+
+    def explain_word_for_api(self, word: str) -> Dict[str, Any]:
+        """Return a JSON-serializable explanation for one word."""
+        return self.analyze_word(word).to_dict()
+
+    def explain_sentence_for_api(self, sentence: str) -> Dict[str, Any]:
+        """Return a JSON-serializable explanation for a sentence."""
+        return self.analyze_sentence(sentence)
+
+    def generate_term_for_api(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Accept a dict from bridge.js and return candidate words.
+
+        Expected payload:
+            {
+                "concept": "refrigerator",
+                "purpose": "keeps food and drinks cold",
+                "domain_tags": ["home", "food", "modern_object"]
+            }
+        """
+        req = GenerationRequest(
+            concept=payload.get("concept", ""),
+            purpose=payload.get("purpose", ""),
+            domain_tags=payload.get("domain_tags", []) or [],
+        )
+        cands = self.generate_modern_term(req)
+        return {
+            "concept": req.concept,
+            "candidates": [c.to_dict() for c in cands],
+        }
+
+
+# ---------------------------------------------------------------------------
+# Module-level singleton (optional convenience)
+# ---------------------------------------------------------------------------
+
+_default_translator: Optional[LnuTranslator] = None
+
+
+def get_translator() -> LnuTranslator:
+    global _default_translator
+    if _default_translator is None:
+        _default_translator = LnuTranslator()
+    return _default_translator
