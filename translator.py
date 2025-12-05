@@ -477,6 +477,253 @@ class LnuTranslator:
             "candidates": [c.to_dict() for c in cands],
         }
 
+# lexicon_data.py
+# Python mirror of lexicon.js for use inside translator.py
+
+from typing import List, Dict, Any
+
+LNU_LEXICON: List[Dict[str, Any]] = [
+    {
+        "lemma": "kwe'",
+        "surface": "Kwe'",
+        "pos": "interjection",
+        "gloss": "Hello",
+        "animacy": None,
+        "root": "kwe'",
+        "morphology": [
+            {"piece": "kwe'", "type": "root", "gloss": "greeting / hello"},
+        ],
+        "examples": [
+            {
+                "mikmaq": "Kwe', teluisi Katew.",
+                "english": "Hello, my name is Katew.",
+            }
+        ],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Used as a friendly greeting; often the first word children learn.",
+            "Opening a story with “Kwe’” sets the tone of respect and relationship.",
+        ],
+        "needsReview": False,
+    },
+
+    {
+        "lemma": "teluisi",
+        "surface": "Teluisi",
+        "pos": "expression",
+        "gloss": "My name is …",
+        "animacy": None,
+        "root": "teluis-",
+        "morphology": [
+            {"piece": "telu-", "type": "root", "gloss": "to be called / named (approx.)"},
+            {"piece": "-isi", "type": "suffix", "gloss": "1st person ‘I am called’ (approx.)"},
+        ],
+        "examples": [
+            {"mikmaq": "Teluisi Katew.", "english": "My name is Katew."}
+        ],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Introductions in Mi’kmaw often come with place and kin, not just personal name.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "kesalul",
+        "surface": "Kesalul",
+        "pos": "verb",
+        "gloss": "I love you (singular)",
+        "animacy": "animate",
+        "root": "kesal-",
+        "morphology": [
+            {"piece": "ke-", "type": "prefix", "gloss": "you (2nd person)"},
+            {"piece": "sal", "type": "root", "gloss": "love, be precious"},
+            {"piece": "-ul", "type": "suffix", "gloss": "I (1st person) acting on you"},
+        ],
+        "examples": [
+            {
+                "mikmaq": "Kesalul, nikmaq.",
+                "english": "I love you, my family.",
+            }
+        ],
+        "source": "Rebecca Thomas – I Place You Into the Fire; community usage",
+        "worldview_notes": [
+            "Tiny shifts in glottal stop position change meaning.",
+            "Shows the link between sound, emotion, and ceremony (fire).",
+        ],
+        "needsReview": False,
+    },
+
+    {
+        "lemma": "msit no'kmaq",
+        "surface": "Msit No'kmaq",
+        "pos": "expression",
+        "gloss": "All my relations",
+        "animacy": None,
+        "root": "msit + no'kmaq",
+        "morphology": [
+            {"piece": "msit", "type": "root", "gloss": "all, everything"},
+            {"piece": "no'kmaq", "type": "root", "gloss": "my relations / all my kin"},
+        ],
+        "examples": [
+            {
+                "mikmaq": "Msit No'kmaq, wela'liek.",
+                "english": "All my relations, I thank you.",
+            }
+        ],
+        "source": "Community teaching; LD manual",
+        "worldview_notes": [
+            "Names the full web of kin – people, animals, plants, waters, winds, ancestors.",
+            "Implies responsibility to everything you’re related to.",
+        ],
+        "needsReview": False,
+    },
+
+    {
+        "lemma": "wela'lin",
+        "surface": "Wela'lin",
+        "pos": "expression",
+        "gloss": "Thank you",
+        "animacy": None,
+        "root": "wel-",
+        "morphology": [
+            {"piece": "wel", "type": "root", "gloss": "good, well"},
+            {"piece": "a'lin", "type": "suffix", "gloss": "to be thus / let it be so (approx.)"},
+        ],
+        "examples": [
+            {"mikmaq": "Wela'lin Msit No'kmaq.", "english": "Thank you, all my relations."}
+        ],
+        "source": "LD manual; everyday speech",
+        "worldview_notes": [
+            "Often deeper than ‘thanks’ – about the state you’re brought into.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "netukulimk",
+        "surface": "Netukulimk",
+        "pos": "noun-abstract",
+        "gloss": "Taking only what you need while caring for land and future generations",
+        "animacy": None,
+        "root": "netukulimk",
+        "morphology": [],
+        "examples": [
+            {
+                "mikmaq": "Netukulimk wjit aq aqamk skitqamu.",
+                "english": "Netukulimk is how we live with the earth.",
+            }
+        ],
+        "source": "Mi'kmaw ethics / LD resource manual",
+        "worldview_notes": [
+            "Key law of balance between harvest and responsibility.",
+        ],
+        "needsReview": False,
+    },
+
+    {
+        "lemma": "kataq",
+        "surface": "Kataq",
+        "pos": "noun-animate",
+        "gloss": "American eel",
+        "animacy": "animate",
+        "root": "kataq",
+        "morphology": [
+            {"piece": "kataq", "type": "root", "gloss": "eel"},
+        ],
+        "examples": [
+            {
+                "mikmaq": "Kataq wjit apoqnmulti'juin lnu'k.",
+                "english": "The eel helps Mi'kmaq people live.",
+            }
+        ],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Eel is a teacher and relative in the story, not just food.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "yellow eel",
+        "surface": "Kataq (yellow stage)",
+        "pos": "noun-animate",
+        "gloss": "Yellow eel life stage",
+        "animacy": "animate",
+        "root": "kataq",
+        "morphology": [],
+        "examples": [],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Represents middle life stage in lakes and rivers.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "silver eel",
+        "surface": "Kataq (silver stage)",
+        "pos": "noun-animate",
+        "gloss": "Silver eel life stage (ocean-going)",
+        "animacy": "animate",
+        "root": "kataq",
+        "morphology": [],
+        "examples": [],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Stage for the long journey back to Sargasso Sea.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "oyster",
+        "surface": "oyster (fill exact Mi'kmaw form)",
+        "pos": "noun-animate",
+        "gloss": "Oyster",
+        "animacy": "animate",
+        "root": "TODO",
+        "morphology": [],
+        "examples": [],
+        "source": "Oyster storybook (your photos)",
+        "worldview_notes": [
+            "Described as filtering and cleaning the water in the lakes.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "apoqnmulti'juin",
+        "surface": "apoqnmulti'juin",
+        "pos": "verb/phrase",
+        "gloss": "helps us live / we are helped to live (approx.)",
+        "animacy": None,
+        "root": "TODO",
+        "morphology": [],
+        "examples": [],
+        "source": "Kataq: The Story of Our Eels",
+        "worldview_notes": [
+            "Shows mutual support between people and more-than-human kin.",
+        ],
+        "needsReview": True,
+    },
+
+    {
+        "lemma": "mother earth",
+        "surface": "Mother Earth (fill preferred Mi'kmaw form)",
+        "pos": "noun-proper",
+        "gloss": "Mother Earth",
+        "animacy": "animate",
+        "root": "TODO",
+        "morphology": [],
+        "examples": [],
+        "source": "Eel + Oyster stories; LD manual",
+        "worldview_notes": [
+            "Central relative that all the water teachings return to.",
+        ],
+        "needsReview": True,
+    },
+]
 
 # ---------------------------------------------------------------------------
 # Module-level singleton (optional convenience)
